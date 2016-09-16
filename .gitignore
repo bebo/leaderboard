@@ -1,4 +1,3 @@
 dist
 node_modules
-jenkins_build.sh
 deploy.rb
