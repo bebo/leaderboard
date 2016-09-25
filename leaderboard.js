@@ -37,7 +37,9 @@ var Leaderboard = {
     if (Leaderboard.score === -1) {
       Bebo.Db.get(Leaderboard.TABLE_NAME, { id: Bebo.User.getId() })
         .then(function(err, resp) {
-          if (!resp) {
+          if (err) {
+            cb(err, null);
+          } else if (!resp) {
             Leaderboard.score = 0;
           } else if (!resp.result || resp.result.length === 0) {
             Leaderboard.score = 0;
@@ -48,6 +50,7 @@ var Leaderboard = {
           cb(Leaderboard.score);
         })
         .catch(function(err) {
+          cb(err, null)
           console.error("failed to fetch scores");
         });
     } else {
@@ -57,10 +60,13 @@ var Leaderboard = {
   getLeaderboard: function(cb) {
     Bebo.Db.get(Leaderboard.TABLE_NAME, { sort_by: "score" }, function(err, data) {
       var results = [];
+      if (err) {
+        cb(err, null)
+      }
       if (!err && data.result) {
         results = data.result;
       }
-      cb(results);
+      cb(null, results);
     });
   }
 };
