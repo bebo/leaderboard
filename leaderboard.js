@@ -23,7 +23,7 @@ var Leaderboard = {
   },
 
   setScore: function(new_score) {
-    Leaderboard.getHighscore(function(score) {
+    Leaderboard.getPersonalScore(function(score) {
       if (new_score > score) {
         Leaderboard.score = new_score;
         var data = { id: Bebo.User.getId(), score: new_score };
@@ -33,7 +33,16 @@ var Leaderboard = {
     });
     Bebo.emitEvent({ type: Leaderboard.SCORE_EVENT, score: new_score, user_id: Bebo.User.getId() });
   },
-  getHighscore: function(cb) {
+  getHighScore: function(cb) {
+    Leaderboard.getLeaderboard(function(err, data) {
+      if (err) {
+        cb(err, null);
+        return;
+      }
+      cb(data.result[0], null);
+    })
+  }
+  getPersonalScore: function(cb) {
     if (Leaderboard.score === -1) {
       Bebo.Db.get(Leaderboard.TABLE_NAME, { id: Bebo.User.getId() })
         .then(function(err, resp) {
@@ -47,14 +56,14 @@ var Leaderboard = {
             var row = resp.result[0];
             Leaderboard.score = row.score;
           }
-          cb(Leaderboard.score);
+          cb(null, Leaderboard.score);
         })
         .catch(function(err) {
           cb(err, null)
           console.error("failed to fetch scores");
         });
     } else {
-      cb(Leaderboard.score);
+      cb(null, Leaderboard.score);
     }
   },
   getLeaderboard: function(cb) {
